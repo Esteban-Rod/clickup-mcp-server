@@ -1,7 +1,7 @@
 {
   "name": "clickup-mcp-server",
-  "version": "1.12.0",
-  "description": "A Model Context Protocol (MCP) server that provides a standardized interface for AI assistants to interact with the ClickUp API",
+  "version": "1.13.0",
+  "description": "Extended fork of nsxdavid/clickup-mcp-server — adds 18 tools (custom fields, milestones via custom_item_id, dependencies, tags, webhooks, get_folders, etc.) and several upstream API quirks fixes.",
   "main": "build/index.js",
   "bin": {
     "clickup-mcp-server": "build/index.js"
