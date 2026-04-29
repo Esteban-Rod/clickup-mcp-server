@@ -351,6 +351,30 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
+    'get_folders',
+    'List all folders in a ClickUp space. Returns folder id, name, and metadata for each folder. Use get_lists with container_type="folder" to drill into a folder afterwards.',
+    {
+      space_id: z.string().describe('The ID of the space to list folders from'),
+      archived: z.boolean().optional().describe('Whether to include archived folders (default: false)')
+    },
+    async ({ space_id, archived }) => {
+      try {
+        const params = archived !== undefined ? { archived } : undefined;
+        const result = await foldersClient.getFoldersFromSpace(space_id, params as any);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error getting folders:', error);
+        return {
+          content: [{ type: 'text', text: `Error getting folders: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
     'create_folder',
     'Create a new folder in a ClickUp space with the specified name.',
     {
