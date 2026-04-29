@@ -108,7 +108,7 @@ export function setupWebhookTools(server: McpServer): void {
 
   server.tool(
     'update_webhook',
-    'Update an existing webhook — change its endpoint URL, swap event filter, or toggle active/inactive status. Use status="inactive" to pause without deleting (preserves the secret).',
+    'Update an existing webhook — change its endpoint URL or swap its event filter. Note: ClickUp does not support manual pause/resume on webhooks (the health.status field is read-only and auto-managed by ClickUp after repeated delivery failures). To pause a subscription, delete the webhook and recreate it when needed.',
     {
       webhook_id: z.string().describe('The ID of the webhook'),
       endpoint: z.string().url().optional().describe('New endpoint URL'),
@@ -117,14 +117,12 @@ export function setupWebhookTools(server: McpServer): void {
         .min(1)
         .optional()
         .describe('New list of event types. Pass ["*"] for all events.'),
-      status: z.enum(['active', 'inactive']).optional().describe('Activate or pause the webhook'),
     },
-    async ({ webhook_id, endpoint, events, status }) => {
+    async ({ webhook_id, endpoint, events }) => {
       try {
         const params: UpdateWebhookParams = {};
         if (endpoint) params.endpoint = endpoint;
         if (events) params.events = events.length === 1 && events[0] === '*' ? '*' : (events as WebhookEvent[]);
-        if (status) params.status = status;
         const result = await webhooksClient.updateWebhook(webhook_id, params);
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],

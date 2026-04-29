@@ -59,7 +59,8 @@ export interface CreateWebhookParams {
 export interface UpdateWebhookParams {
   endpoint?: string;
   events?: WebhookEvent[] | '*';
-  status?: 'active' | 'inactive';
+  // ClickUp does not accept `status` on PUT /webhook/{id} — health.status is
+  // read-only and auto-managed. To pause a webhook, delete and recreate it.
 }
 
 export class WebhooksClient {
@@ -95,8 +96,9 @@ export class WebhooksClient {
   }
 
   /**
-   * Update an existing webhook (endpoint URL, event filter, or active status).
-   * Pass status='inactive' to pause without deleting.
+   * Update an existing webhook (endpoint URL or event filter).
+   * Note: ClickUp does not support manual pause/resume — to pause, delete and
+   * recreate the webhook. The health.status field is auto-managed.
    * @param webhookId The ID of the webhook
    * @param params Fields to update
    */
