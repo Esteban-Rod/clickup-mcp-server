@@ -82,6 +82,30 @@ export class SpacesClient {
   async updateSpace(spaceId: string, params: UpdateSpaceParams): Promise<Space> {
     return this.client.put(`/space/${spaceId}`, params);
   }
+
+  /**
+   * Create a new space in a workspace.
+   * @param workspaceId The ID of the workspace (team)
+   * @param params Create payload — name is required
+   * @returns The created space
+   */
+  async createSpace(workspaceId: string, params: CreateSpaceParams): Promise<Space> {
+    return this.client.post(`/team/${workspaceId}/space`, params);
+  }
+
+  /**
+   * Delete a space.
+   * @param spaceId The ID of the space to delete
+   */
+  async deleteSpace(spaceId: string): Promise<void> {
+    await this.client.delete(`/space/${spaceId}`);
+  }
+}
+
+export interface CreateSpaceParams {
+  name: string;
+  multiple_assignees?: boolean;
+  features?: UpdateSpaceParams['features'];
 }
 
 export interface UpdateSpaceParams {
