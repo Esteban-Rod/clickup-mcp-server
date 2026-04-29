@@ -1,17 +1,40 @@
-# ClickUp MCP Server
+# ClickUp MCP Server (extended fork)
 
-<p align="center">
-  <img src="assets/images/clickupserverlogo.png" width="256" alt="ClickUp MCP Server Logo" />
-</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/clickup-mcp-server"><img src="https://img.shields.io/npm/v/clickup-mcp-server.svg" alt="npm version"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
-  <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
-</p>
+> **Fork of [`nsxdavid/clickup-mcp-server`](https://github.com/nsxdavid/clickup-mcp-server)** with 18 additional tools and several bug fixes. Tracks upstream `main`; new features pushed here while we wait for upstream review (PRs [#5](https://github.com/nsxdavid/clickup-mcp-server/pull/5), [#6](https://github.com/nsxdavid/clickup-mcp-server/pull/6), [#7](https://github.com/nsxdavid/clickup-mcp-server/pull/7)).
 
 A Model Context Protocol (MCP) server that provides a standardized interface for AI assistants to interact with the ClickUp API. This server enables AI systems to access and manipulate ClickUp data such as workspaces, spaces, folders, lists, tasks, docs, comments, and checklists.
+
+## Install via npx (recommended)
+
+```jsonc
+// ~/.claude.json or your MCP config
+"clickup": {
+  "command": "npx",
+  "args": ["-y", "github:Esteban-Rod/clickup-mcp-server#v1.13.0-fork"],
+  "env": { "CLICKUP_API_TOKEN": "pk_..." }
+}
+```
+
+The `prepare` script compiles TypeScript automatically after `npm install`, so `npx` works out of the box. Pin a tag (e.g. `v1.13.0-fork`) for reproducibility, or omit `#tag` to track `main`.
+
+## What this fork adds (vs upstream v1.12.0)
+
+- **`update_list.content`** — set list description (e.g. project mode marker on the first line).
+- **`create_task` / `update_task`** — `custom_item_id` (mark as milestone, diamond on Gantt), `markdown_description` (rich-formatted), `archived`.
+- **`delete_task`**, **`add_task_dependency`**, **`remove_task_dependency`**.
+- **`update_space` / `create_space` / `delete_space`** — toggle ClickApps (priorities, milestones, time tracking, tags, checklists, custom fields, dependencies, portfolios, sprints, points), `multiple_assignees`, `private`.
+- **Custom fields CRUD** — `get_custom_fields`, `create_custom_field`, `set_custom_field_value`, `remove_custom_field_value`.
+- **`move_task_to_list`** — uses ClickUp v3 `home_list` endpoint.
+- **`get_list_templates`** — list workspace list templates.
+- **`get_folders`** — list folders in a space.
+- **Tag management** — `update_task.tags` (replacement semantics, internally diff'd through add/remove because ClickUp's `PUT /task` ignores `tags`), `add_task_tag` (auto-creates on space), `remove_task_tag`, `get_space_tags`.
+- **Webhook CRUD** — `get_webhooks`, `create_webhook`, `update_webhook`, `delete_webhook`.
+- **`search_docs` rewritten** on top of v3 docs listing + client-side filter (the v2 `search` endpoint returns 404; v3 has no dedicated search endpoint).
+- **`create_list_from_template_in_folder` / `..._in_space`** — URL path fix (was 404) + refetch to drop spurious `deleted: true` from the API response.
+
+## Original upstream README
+
+The remainder of this document is the original upstream README, kept as-is.
 
 ## Available Tools
 
