@@ -6,6 +6,7 @@ import { setupDocTools } from './tools/doc-tools.js';
 import { setupSpaceTools } from './tools/space-tools.js';
 import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
+import { setupWebhookTools } from './tools/webhook-tools.js';
 import { setupTaskResources } from './resources/task-resources.js';
 import { setupDocResources } from './resources/doc-resources.js';
 import { setupChecklistResources } from './resources/checklist-resources.js';
@@ -44,6 +45,7 @@ class ClickUpServer {
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
+    setupWebhookTools(this.server);
   }
 
   private setupResources() {
