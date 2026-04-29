@@ -175,6 +175,34 @@ export class TasksClient {
   }
 
   /**
+   * Add a dependency between two tasks.
+   * Pass exactly one of depends_on or dependency_of in the body.
+   * @param taskId The ID of the task with the dependency relationship
+   * @param body Object with either { depends_on } or { dependency_of }
+   * @returns Success message
+   */
+  async addDependency(
+    taskId: string,
+    body: { depends_on?: string; dependency_of?: string }
+  ): Promise<{ success: boolean }> {
+    return this.client.post(`/task/${taskId}/dependency`, body);
+  }
+
+  /**
+   * Remove a dependency between two tasks.
+   * Pass exactly one of depends_on or dependency_of as a query parameter.
+   * @param taskId The ID of the task with the dependency relationship
+   * @param params Object with either { depends_on } or { dependency_of }
+   * @returns Success message
+   */
+  async removeDependency(
+    taskId: string,
+    params: { depends_on?: string; dependency_of?: string }
+  ): Promise<{ success: boolean }> {
+    return this.client.delete(`/task/${taskId}/dependency`, params);
+  }
+
+  /**
    * Get subtasks of a specific task
    * @param taskId The ID of the task to get subtasks for
    * @returns A list of subtasks

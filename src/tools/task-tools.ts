@@ -179,6 +179,85 @@ export function setupTaskTools(server: McpServer): void {
     }
   );
 
+  server.tool(
+    'delete_task',
+    'Permanently delete a ClickUp task. This is destructive — the task and its history are removed. Use update_task with archived=true if you want to keep the task hidden but recoverable.',
+    {
+      task_id: z.string().describe('The ID of the task to delete')
+    },
+    async ({ task_id }) => {
+      try {
+        const result = await tasksClient.deleteTask(task_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error deleting task:', error);
+        return {
+          content: [{ type: 'text', text: `Error deleting task: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
+    'add_task_dependency',
+    'Add a dependency between two ClickUp tasks. The task identified by task_id will be marked as "waiting on" depends_on (or as "blocking" of dependency_of). Useful for milestone chains (e.g. release V1.1 waits on V1.0). Pass exactly one of depends_on or dependency_of.',
+    {
+      task_id: z.string().describe('The ID of the task that has the dependency relationship'),
+      depends_on: z.string().optional().describe('The ID of the task that task_id is waiting on (task_id will not be actionable until depends_on is closed)'),
+      dependency_of: z.string().optional().describe('The ID of the task that depends on task_id (the inverse direction — task_id is blocking dependency_of)')
+    },
+    async ({ task_id, depends_on, dependency_of }) => {
+      try {
+        if ((depends_on && dependency_of) || (!depends_on && !dependency_of)) {
+          throw new Error('Provide exactly one of depends_on or dependency_of.');
+        }
+        const body: { depends_on?: string; dependency_of?: string } = {};
+        if (depends_on) body.depends_on = depends_on;
+        if (dependency_of) body.dependency_of = dependency_of;
+        const result = await tasksClient.addDependency(task_id, body);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error adding task dependency:', error);
+        return {
+          content: [{ type: 'text', text: `Error adding task dependency: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
+    'remove_task_dependency',
+    'Remove an existing dependency between two ClickUp tasks. Pass exactly one of depends_on or dependency_of (the same direction used when creating the dependency).',
+    {
+      task_id: z.string().describe('The ID of the task that has the dependency relationship'),
+      depends_on: z.string().optional().describe('The ID of the upstream task (task_id was waiting on it)'),
+      dependency_of: z.string().optional().describe('The ID of the downstream task (it was waiting on task_id)')
+    },
+    async ({ task_id, depends_on, dependency_of }) => {
+      try {
+        if ((depends_on && dependency_of) || (!depends_on && !dependency_of)) {
+          throw new Error('Provide exactly one of depends_on or dependency_of.');
+        }
+        const result = await tasksClient.removeDependency(task_id, { depends_on, dependency_of });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error removing task dependency:', error);
+        return {
+          content: [{ type: 'text', text: `Error removing task dependency: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
   // List and Folder tools
   server.tool(
     'get_lists',
