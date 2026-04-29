@@ -145,6 +145,7 @@ export interface UpdateSpaceParams {
     priorities?: { enabled?: boolean; priorities?: any[] };
     milestones?: { enabled?: boolean };
     zoom?: { enabled?: boolean };
+    threaded_comments?: { enabled?: boolean };
   };
 }
 

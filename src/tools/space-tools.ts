@@ -76,7 +76,8 @@ export function setupSpaceTools(server: McpServer): void {
       enable_dependency_warning: z.boolean().optional().describe('Enable dependency warnings'),
       enable_portfolios: z.boolean().optional().describe('Enable portfolios'),
       enable_sprints: z.boolean().optional().describe('Enable sprints'),
-      enable_points: z.boolean().optional().describe('Enable story points')
+      enable_points: z.boolean().optional().describe('Enable story points'),
+      enable_threaded_comments: z.boolean().optional().describe('Enable threaded comments (required to use create_threaded_comment / get_threaded_comments)')
     },
     async (args) => {
       try {
@@ -94,6 +95,7 @@ export function setupSpaceTools(server: McpServer): void {
         if (flags.enable_portfolios !== undefined) features.portfolios = { enabled: flags.enable_portfolios };
         if (flags.enable_sprints !== undefined) features.sprints = { enabled: flags.enable_sprints };
         if (flags.enable_points !== undefined) features.points = { enabled: flags.enable_points };
+        if (flags.enable_threaded_comments !== undefined) features.threaded_comments = { enabled: flags.enable_threaded_comments };
         const params: any = { name };
         if (flags.private !== undefined) params.private = flags.private;
         if (flags.multiple_assignees !== undefined) params.multiple_assignees = flags.multiple_assignees;
@@ -131,7 +133,8 @@ export function setupSpaceTools(server: McpServer): void {
       enable_dependency_warning: z.boolean().optional().describe('Enable dependency warnings'),
       enable_portfolios: z.boolean().optional().describe('Enable portfolios'),
       enable_sprints: z.boolean().optional().describe('Enable sprints'),
-      enable_points: z.boolean().optional().describe('Enable story points')
+      enable_points: z.boolean().optional().describe('Enable story points'),
+      enable_threaded_comments: z.boolean().optional().describe('Enable threaded comments (required to use create_threaded_comment / get_threaded_comments)')
     },
     async (args) => {
       try {
@@ -149,6 +152,7 @@ export function setupSpaceTools(server: McpServer): void {
         if (flags.enable_portfolios !== undefined) features.portfolios = { enabled: flags.enable_portfolios };
         if (flags.enable_sprints !== undefined) features.sprints = { enabled: flags.enable_sprints };
         if (flags.enable_points !== undefined) features.points = { enabled: flags.enable_points };
+        if (flags.enable_threaded_comments !== undefined) features.threaded_comments = { enabled: flags.enable_threaded_comments };
         const params: any = { name };
         if (flags.multiple_assignees !== undefined) params.multiple_assignees = flags.multiple_assignees;
         if (Object.keys(features).length > 0) params.features = features;
