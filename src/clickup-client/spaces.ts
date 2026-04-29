@@ -100,6 +100,23 @@ export class SpacesClient {
   async deleteSpace(spaceId: string): Promise<void> {
     await this.client.delete(`/space/${spaceId}`);
   }
+
+  /**
+   * Get the catalog of tags defined on a space. Tags are space-level —
+   * the same tag name is reusable across all lists/folders/tasks of that space.
+   * @param spaceId The ID of the space
+   * @returns Array of tags with their visual configuration
+   */
+  async getSpaceTags(spaceId: string): Promise<{ tags: SpaceTag[] }> {
+    return this.client.get(`/space/${spaceId}/tag`);
+  }
+}
+
+export interface SpaceTag {
+  name: string;
+  tag_fg: string;
+  tag_bg: string;
+  creator: number;
 }
 
 export interface CreateSpaceParams {

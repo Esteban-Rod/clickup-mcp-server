@@ -152,6 +152,7 @@ export function setupTaskTools(server: McpServer): void {
       description: z.string().optional().describe('The new description of the task (plain text)'),
       markdown_description: z.string().optional().describe('The new description of the task with markdown formatting (rendered in the ClickUp UI). When provided, takes precedence over description.'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
+      tags: z.array(z.string()).optional().describe('Replace the task tags with this list of tag names. Tags must already exist on the space (use add_task_tag for incremental updates that auto-create).'),
       status: z.string().optional().describe('The new status of the task'),
       priority: z.number().optional().describe('The new priority of the task (1-4)'),
       due_date: z.number().optional().describe('The new due date of the task (Unix timestamp)'),
@@ -252,6 +253,52 @@ export function setupTaskTools(server: McpServer): void {
         console.error('Error removing task dependency:', error);
         return {
           content: [{ type: 'text', text: `Error removing task dependency: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
+    'add_task_tag',
+    'Add a tag to a task. The tag is auto-created on the parent space if it does not exist yet. Use this for incremental tag updates (preserves other tags). For replacement semantics, use update_task with the tags array.',
+    {
+      task_id: z.string().describe('The ID of the task'),
+      tag_name: z.string().describe('The name of the tag to add. Auto-created on the space if missing.')
+    },
+    async ({ task_id, tag_name }) => {
+      try {
+        const result = await tasksClient.addTagToTask(task_id, tag_name);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error adding task tag:', error);
+        return {
+          content: [{ type: 'text', text: `Error adding task tag: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
+    'remove_task_tag',
+    'Remove a tag from a task. The tag definition itself is preserved on the space (other tasks keep it). Use get_space_tags to see existing tags on a space.',
+    {
+      task_id: z.string().describe('The ID of the task'),
+      tag_name: z.string().describe('The name of the tag to remove')
+    },
+    async ({ task_id, tag_name }) => {
+      try {
+        const result = await tasksClient.removeTagFromTask(task_id, tag_name);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error removing task tag:', error);
+        return {
+          content: [{ type: 'text', text: `Error removing task tag: ${error.message}` }],
           isError: true
         };
       }

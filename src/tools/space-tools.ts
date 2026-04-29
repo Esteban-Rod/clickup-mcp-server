@@ -166,6 +166,27 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
+  // Register get_space_tags tool
+  server.tool(
+    'get_space_tags',
+    'Get the catalog of tags defined on a space (tags are space-level — same name reusable across all lists/tasks of that space). Returns each tag with its visual config (foreground/background color).',
+    { space_id: z.string().describe('The ID of the space') },
+    async ({ space_id }) => {
+      try {
+        const result = await spacesClient.getSpaceTags(space_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: any) {
+        console.error('Error getting space tags:', error);
+        return {
+          content: [{ type: 'text', text: `Error getting space tags: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
   // Register delete_space tool
   server.tool(
     'delete_space',

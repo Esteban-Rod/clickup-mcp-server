@@ -78,6 +78,7 @@ export interface UpdateTaskParams {
   description?: string;
   markdown_description?: string;
   assignees?: number[];
+  tags?: string[];
   status?: string;
   priority?: number;
   due_date?: number;
@@ -247,6 +248,28 @@ export class TasksClient {
     params: { depends_on?: string; dependency_of?: string }
   ): Promise<{ success: boolean }> {
     return this.client.delete(`/task/${taskId}/dependency`, params);
+  }
+
+  /**
+   * Add an existing tag to a task. The tag must already exist on the space —
+   * this endpoint does not auto-create tags. Use createSpaceTag first if needed,
+   * or pass the tag in the `tags` array of createTask which auto-creates.
+   * @param taskId The ID of the task
+   * @param tagName The name of the tag (will be URL-encoded)
+   * @returns Success message
+   */
+  async addTagToTask(taskId: string, tagName: string): Promise<{ success: boolean }> {
+    return this.client.post(`/task/${taskId}/tag/${encodeURIComponent(tagName)}`);
+  }
+
+  /**
+   * Remove a tag from a task. The tag itself remains defined on the space.
+   * @param taskId The ID of the task
+   * @param tagName The name of the tag (will be URL-encoded)
+   * @returns Success message
+   */
+  async removeTagFromTask(taskId: string, tagName: string): Promise<{ success: boolean }> {
+    return this.client.delete(`/task/${taskId}/tag/${encodeURIComponent(tagName)}`);
   }
 
   /**
