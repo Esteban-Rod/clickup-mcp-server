@@ -219,7 +219,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register get_threaded_comments tool
   server.tool(
     'get_threaded_comments',
-    'Get threaded comments (replies) for a parent comment. Returns comment details with pagination support.',
+    'Get threaded comments (replies) for a parent comment. Returns comment details with pagination support. Requires the "Threaded Comments" ClickApp to be enabled — this is a workspace-level toggle (Settings → ClickApps), not exposed in the public API; activate manually in the ClickUp UI.',
     {
       comment_id: z.string().describe('The ID of the parent comment'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
@@ -244,7 +244,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_threaded_comment tool
   server.tool(
     'create_threaded_comment',
-    'Create a new threaded comment (reply) to a parent comment. Supports notification settings.',
+    'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Requires the "Threaded Comments" ClickApp to be enabled — this is a workspace-level toggle (Settings → ClickApps), not exposed in the public API; activate manually in the ClickUp UI. If disabled, the API returns 400 "Threaded comments ClickApp must be enabled".',
     {
       comment_id: z.string().describe('The ID of the parent comment'),
       comment_text: z.string().describe('The text content of the comment'),
