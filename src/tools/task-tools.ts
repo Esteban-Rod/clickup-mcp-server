@@ -375,14 +375,18 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'update_list',
-    'Update an existing ClickUp list\'s name.',
+    'Update an existing ClickUp list\'s name and/or description (content). The description is plain text — markdown is not rendered in list descriptions.',
     {
       list_id: z.string().describe('The ID of the list to update'),
-      name: z.string().describe('The new name of the list')
+      name: z.string().optional().describe('The new name of the list'),
+      content: z.string().optional().describe('The new description of the list (plain text, markdown not rendered)')
     },
-    async ({ list_id, name }) => {
+    async ({ list_id, name, content }) => {
       try {
-        const result = await listsClient.updateList(list_id, { name });
+        const params: { name?: string; content?: string } = {};
+        if (name !== undefined) params.name = name;
+        if (content !== undefined) params.content = content;
+        const result = await listsClient.updateList(list_id, params);
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
         };
