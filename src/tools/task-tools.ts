@@ -108,11 +108,12 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'create_task',
-    'Create a new task in a ClickUp list with specified properties like name, description, assignees, status, and dates.',
+    'Create a new task in a ClickUp list with specified properties like name, description, assignees, status, and dates. Set custom_item_id=1 to mark the task as a milestone (diamond on Gantt). Use markdown_description for rich-formatted descriptions.',
     {
       list_id: z.string().describe('The ID of the list to create the task in'),
       name: z.string().describe('The name of the task'),
-      description: z.string().optional().describe('The description of the task'),
+      description: z.string().optional().describe('The description of the task (plain text)'),
+      markdown_description: z.string().optional().describe('The description of the task with markdown formatting (rendered in the ClickUp UI). When provided, takes precedence over description.'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
       tags: z.array(z.string()).optional().describe('The tags to add to the task'),
       status: z.string().optional().describe('The status of the task'),
@@ -123,7 +124,8 @@ export function setupTaskTools(server: McpServer): void {
       start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
-      parent: z.string().optional().describe('The ID of the parent task')
+      parent: z.string().optional().describe('The ID of the parent task'),
+      custom_item_id: z.number().optional().describe('Task type ID. Set to 1 to mark the task as a milestone (diamond icon, Gantt support). Other values map to other custom task types if configured on the workspace.')
     },
     async ({ list_id, ...taskParams }) => {
       try {
@@ -143,11 +145,12 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'update_task',
-    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates.',
+    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Set custom_item_id=1 to mark/unmark the task as a milestone. Use markdown_description for rich-formatted descriptions.',
     {
       task_id: z.string().describe('The ID of the task to update'),
       name: z.string().optional().describe('The new name of the task'),
-      description: z.string().optional().describe('The new description of the task'),
+      description: z.string().optional().describe('The new description of the task (plain text)'),
+      markdown_description: z.string().optional().describe('The new description of the task with markdown formatting (rendered in the ClickUp UI). When provided, takes precedence over description.'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
       status: z.string().optional().describe('The new status of the task'),
       priority: z.number().optional().describe('The new priority of the task (1-4)'),
@@ -156,7 +159,9 @@ export function setupTaskTools(server: McpServer): void {
       time_estimate: z.number().optional().describe('The new time estimate for the task (in milliseconds)'),
       start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
-      notify_all: z.boolean().optional().describe('Whether to notify all assignees')
+      notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
+      custom_item_id: z.number().optional().describe('Task type ID. Set to 1 to mark the task as a milestone (diamond icon, Gantt support). Set to 0 to unmark.'),
+      archived: z.boolean().optional().describe('Set to true to archive the task, false to unarchive.')
     },
     async ({ task_id, ...taskParams }) => {
       try {

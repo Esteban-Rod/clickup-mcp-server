@@ -52,6 +52,7 @@ export interface Task {
 export interface CreateTaskParams {
   name: string;
   description?: string;
+  markdown_description?: string;
   assignees?: number[];
   tags?: string[];
   status?: string;
@@ -64,6 +65,7 @@ export interface CreateTaskParams {
   notify_all?: boolean;
   parent?: string;
   links_to?: string;
+  custom_item_id?: number;
   check_required_custom_fields?: boolean;
   custom_fields?: Array<{
     id: string;
@@ -74,6 +76,7 @@ export interface CreateTaskParams {
 export interface UpdateTaskParams {
   name?: string;
   description?: string;
+  markdown_description?: string;
   assignees?: number[];
   status?: string;
   priority?: number;
@@ -84,6 +87,8 @@ export interface UpdateTaskParams {
   start_date_time?: boolean;
   notify_all?: boolean;
   parent?: string;
+  custom_item_id?: number;
+  archived?: boolean;
   custom_fields?: Array<{
     id: string;
     value: any;
