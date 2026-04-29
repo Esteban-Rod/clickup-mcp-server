@@ -145,14 +145,14 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'update_task',
-    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Set custom_item_id=1 to mark/unmark the task as a milestone. Use markdown_description for rich-formatted descriptions.',
+    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Set custom_item_id=1 to mark/unmark the task as a milestone. Use markdown_description for rich-formatted descriptions. Pass tags to replace the task\'s tag set (auto-creates missing tags on the space — internally implemented via add_task_tag / remove_task_tag because ClickUp\'s PUT /task ignores the tags field).',
     {
       task_id: z.string().describe('The ID of the task to update'),
       name: z.string().optional().describe('The new name of the task'),
       description: z.string().optional().describe('The new description of the task (plain text)'),
       markdown_description: z.string().optional().describe('The new description of the task with markdown formatting (rendered in the ClickUp UI). When provided, takes precedence over description.'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
-      tags: z.array(z.string()).optional().describe('Replace the task tags with this list of tag names. Tags must already exist on the space (use add_task_tag for incremental updates that auto-create).'),
+      tags: z.array(z.string()).optional().describe('Replace the task tags with this exact set of tag names. Missing tags are auto-created on the space; tags removed from the list are detached from the task (but their definition remains on the space). Pass [] to clear all tags. For purely incremental changes, prefer add_task_tag / remove_task_tag.'),
       status: z.string().optional().describe('The new status of the task'),
       priority: z.number().optional().describe('The new priority of the task (1-4)'),
       due_date: z.number().optional().describe('The new due date of the task (Unix timestamp)'),
@@ -164,9 +164,22 @@ export function setupTaskTools(server: McpServer): void {
       custom_item_id: z.number().optional().describe('Task type ID. Set to 1 to mark the task as a milestone (diamond icon, Gantt support). Set to 0 to unmark.'),
       archived: z.boolean().optional().describe('Set to true to archive the task, false to unarchive.')
     },
-    async ({ task_id, ...taskParams }) => {
+    async ({ task_id, tags, ...taskParams }) => {
       try {
-        const result = await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams);
+        if (tags !== undefined) {
+          const current = await tasksClient.getTask(task_id);
+          const currentTags = new Set((current.tags ?? []).map(t => t.name));
+          const desired = new Set(tags);
+          const toAdd = [...desired].filter(t => !currentTags.has(t));
+          const toRemove = [...currentTags].filter(t => !desired.has(t));
+          for (const t of toAdd) await tasksClient.addTagToTask(task_id, t);
+          for (const t of toRemove) await tasksClient.removeTagFromTask(task_id, t);
+        }
+
+        const hasOtherFields = Object.keys(taskParams).length > 0;
+        const result = hasOtherFields
+          ? await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams)
+          : await tasksClient.getTask(task_id);
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
         };

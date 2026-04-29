@@ -31,6 +31,12 @@ export interface Task {
   time_estimate?: number | null;
   time_spent?: number | null;
   custom_fields?: Array<any>;
+  tags?: Array<{
+    name: string;
+    tag_fg?: string;
+    tag_bg?: string;
+    creator?: number;
+  }>;
   list?: {
     id: string;
     name: string;
@@ -78,7 +84,8 @@ export interface UpdateTaskParams {
   description?: string;
   markdown_description?: string;
   assignees?: number[];
-  tags?: string[];
+  // NOTE: ClickUp's PUT /task/{id} silently ignores `tags`. The update_task
+  // tool handler simulates replacement via add_task_tag / remove_task_tag.
   status?: string;
   priority?: number;
   due_date?: number;
