@@ -145,7 +145,7 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'update_task',
-    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Set custom_item_id=1 to mark/unmark the task as a milestone. Use markdown_description for rich-formatted descriptions. Pass tags to replace the task\'s tag set (auto-creates missing tags on the space — internally implemented via add_task_tag / remove_task_tag because ClickUp\'s PUT /task ignores the tags field).',
+    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Set custom_item_id=1 to mark/unmark the task as a milestone. Use markdown_description for rich-formatted descriptions. Pass tags to replace the task\'s tag set (auto-creates missing tags on the space — internally implemented via add_task_tag / remove_task_tag because ClickUp\'s PUT /task ignores the tags field). Pass parent to attach the task as a subtask of another task (same list). Note: ClickUp\'s API silently ignores parent=null — promoting a subtask to a root task requires recreating it.',
     {
       task_id: z.string().describe('The ID of the task to update'),
       name: z.string().optional().describe('The new name of the task'),
@@ -161,6 +161,7 @@ export function setupTaskTools(server: McpServer): void {
       start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
+      parent: z.string().optional().describe('The ID of the parent task. Setting this attaches the task as a subtask of the given parent (must be in the same list). ClickUp\'s API silently ignores parent=null — to promote a subtask to a root task, recreate it and delete the original.'),
       custom_item_id: z.number().optional().describe('Task type ID. Set to 1 to mark the task as a milestone (diamond icon, Gantt support). Set to 0 to unmark.'),
       archived: z.boolean().optional().describe('Set to true to archive the task, false to unarchive.')
     },
